@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:8-alpine
+    container_name: mg-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mg-network
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mg-api
+    ports:
+      - "${API_PORT:-5000}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - ConnectionStrings__Redis=redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - mg-network
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  redis_data:
+
+networks:
+  mg-network:
+    driver: bridge
