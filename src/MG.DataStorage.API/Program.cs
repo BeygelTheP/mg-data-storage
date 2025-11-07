@@ -3,7 +3,7 @@ using MG.DataStorage.Business.Services;
 using MG.DataStorage.Core.Interfaces;
 using MG.DataStorage.Infrastructure.Caching;
 using MG.DataStorage.Infrastructure.Configuration;
-using MG.DataStorage.Infrastructure.Repositories;
+using MG.DataStorage.Infrastructure.Database;
 using MG.DataStorage.Infrastructure.FileStorage;
 using MG.DataStorage.Core.DTOs;
 
@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CacheSettings>(configuration.GetSection(CacheSettings.CONFIG_NAME));
 builder.Services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.CONFIG_NAME));
 builder.Services.Configure<SecuritySettings>(configuration.GetSection(SecuritySettings.CONFIG_NAME));
+builder.Services.Configure<PostgreSqlSettings>(builder.Configuration.GetSection("PostgreSqlSettings"));
 //
 
 // Add services to the container.
@@ -31,7 +32,7 @@ builder.Services.AddSingleton<HybridCacheService>();
 
 // File + DB
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-builder.Services.AddScoped<IDataRepository, DatabaseRepository>();
+builder.Services.AddScoped<IDataRepository, PostgreSqlDataService>();
 
 // Factory
 builder.Services.AddScoped<IDataProviderFactory, DataProviderFactory>();
@@ -44,7 +45,7 @@ builder.Services.AddScoped<IDataRetrievalService>(sp =>
     // Composing the chain
     var memory = new CacheHandler(factory.CreateDataSource(DataSource.Cache));
     var file = new FileHandler(factory.CreateDataSource(DataSource.File));
-    var db = new DatabaseHandler(factory.CreateDataSource(DataSource.Database));
+    var db = new PostgreSqlHandler(factory.CreateDataSource(DataSource.Database));
 
     memory.SetNext(file).SetNext(db);
 

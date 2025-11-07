@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 
 namespace MG.DataStorage.Core.Interfaces;
@@ -12,27 +13,27 @@ public abstract class DataHandler
         _nextHandler = handler;
         return handler;
     }
-    protected abstract Task<string?> FetchContent(string id, CancellationToken cancellationToken = default);
+    protected abstract Task<JsonElement?> FetchContent(string id, CancellationToken cancellationToken = default);
     protected virtual async Task PostFetch(DataRetrievalResult data, CancellationToken cancellationToken = default) { }
     public virtual async Task<DataRetrievalResult?> HandleAsync(string id, CancellationToken cancellationToken = default)
     {
         var payload = await FetchContent(id, cancellationToken);
-        if (payload is not null)
+        if (payload.HasValue)
             return new DataRetrievalResult
             {
-                Payload = payload,
+                Payload = payload.Value,
                 Id = id,
                 RetrievedFrom = SourceType,
             };
 
-        var result = _nextHandler is not null
+        var nextHandlerResult = _nextHandler is not null
             ? await _nextHandler.HandleAsync(id, cancellationToken)
             : null;
-        if (result is not null)
+        if (nextHandlerResult is not null)
         {
-            await PostFetch(result, cancellationToken);
+            await PostFetch(nextHandlerResult, cancellationToken);
         }
-        return result;
+        return nextHandlerResult;
     }
 }
 

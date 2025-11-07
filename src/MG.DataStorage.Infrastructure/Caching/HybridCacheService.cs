@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
@@ -16,30 +17,25 @@ public class HybridCacheService : ICacheService
         _redis = redis;
     }
 
-    public async Task<string?> GetByIdAsync(string key, CancellationToken ct = default)
+    public async Task<JsonElement?> GetByIdAsync(string key, CancellationToken ct = default)
     {
-        var value = await _memory.GetByIdAsync(key, ct);
-        if (value != null) return value;
+        var payload = await _memory.GetByIdAsync(key, ct);
+        if (payload != null) return payload;
 
-        value = await _redis.GetByIdAsync(key, ct);
-        if (value != null)
-            await _memory.SetAsync(key, value, TimeSpan.FromMinutes(10), ct);
-        return value;
-    }
-
-    public async Task SetAsync(string key, string value, TimeSpan ttl, CancellationToken ct = default)
-    {
-        if (await _memory.IsFullAsync(ct))
-            await _redis.SetAsync(key, value, ttl, ct);
-        else
-            await _memory.SetAsync(key, value, ttl, ct);
+        payload = await _redis.GetByIdAsync(key, ct);
+        if (payload.HasValue)
+            await _memory.SetAsync(key, payload.Value, ct);
+        return payload;
     }
 
     public Task<bool> IsFullAsync(CancellationToken ct = default)
         => _memory.IsFullAsync(ct);
 
-    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    public async Task SetAsync(string id, JsonElement content, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (await _memory.IsFullAsync(cancellationToken))
+            await _redis.SetAsync(id, content, cancellationToken);
+        else
+            await _memory.SetAsync(id, content, cancellationToken);
     }
 }

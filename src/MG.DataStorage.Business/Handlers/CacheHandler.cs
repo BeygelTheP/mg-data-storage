@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
@@ -14,7 +15,7 @@ public sealed class CacheHandler : DataHandler
 
     protected override DataSource SourceType => DataSource.Cache;
 
-    protected override async Task<string?> FetchContent(string id, CancellationToken cancellationToken = default)
+    protected override async Task<JsonElement?> FetchContent(string id, CancellationToken cancellationToken = default)
     {
         return await _dataService.GetByIdAsync(id, cancellationToken);
     }

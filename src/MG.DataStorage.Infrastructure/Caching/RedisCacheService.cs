@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
@@ -9,24 +10,19 @@ public sealed class RedisCacheService : ICacheService
 
     public RedisCacheService()
     {
-       
-    }
 
-    public async Task<string?> GetByIdAsync(string key, CancellationToken ct = default)
-    {        
-        return $"Mock string from {nameof(GetByIdAsync)}";
     }
+    public Task<bool> IsFullAsync(CancellationToken ct = default) => Task.FromResult(false);
 
-    public async Task SetAsync(string key, string value, TimeSpan ttl, CancellationToken ct = default)
+    public Task<JsonElement?> GetByIdAsync(string key, CancellationToken ct = default)
     {
-
+        //todo implement
+        return Task.FromResult<JsonElement?>(null);
     }
 
-    public Task<bool> IsFullAsync(CancellationToken ct = default)
-        => Task.FromResult(false); // Redis usually not limited here
-
-    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    public Task SetAsync(string id, JsonElement content, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        //todo implement
+        return Task.CompletedTask;
     }
 }

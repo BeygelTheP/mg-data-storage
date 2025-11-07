@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,5 +15,5 @@ public class DataController : ControllerBase
         var data = await _dataService.GetDataAsync(id);
         if (data == null) return NotFound();
         return Ok(data);
-    }
+    }    
 }

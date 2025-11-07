@@ -1,6 +1,6 @@
 @API_HostAddress = http://localhost:5168
 
-GET {{API_HostAddress}}/data/123
+GET {{API_HostAddress}}/data/user-001
 Accept: application/json
 
 ###

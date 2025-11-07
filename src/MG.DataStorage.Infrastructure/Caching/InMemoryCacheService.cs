@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 using MG.DataStorage.Infrastructure.Configuration;
@@ -8,8 +9,8 @@ namespace MG.DataStorage.Infrastructure.Caching;
 
 public class InMemoryCacheService : ICacheService
 {
-    
-    private readonly ConcurrentDictionary<string, (string data, TimeSpan ttl)> _cache;
+
+    private readonly ConcurrentDictionary<string, (JsonElement data, TimeSpan ttl)> _cache;
     private readonly long _maxSizeBytes;
 
     private long _currentSize;
@@ -22,22 +23,17 @@ public class InMemoryCacheService : ICacheService
         _maxSizeBytes = options.Value.InMemoryMaxSizeMB * 1024 * 1024;
 
     }
-
-    public Task<string?> GetByIdAsync(string id, CancellationToken ct = default)
-    {        
-        return Task.FromResult($"mock string from {nameof(InMemoryCacheService)}");
-    }
-
-    public Task SetAsync(string id, string data, TimeSpan ttl, CancellationToken ct = default)
-    {        
-        return Task.CompletedTask;
-    }
-
     public Task<bool> IsFullAsync(CancellationToken ct = default)
-        => Task.FromResult(_currentSize > _maxSizeBytes);
+               => Task.FromResult(_currentSize > _maxSizeBytes);
 
-    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    public Task<JsonElement?> GetByIdAsync(string id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<JsonElement?>(null);
+    }
+
+    public Task SetAsync(string id, JsonElement content, CancellationToken cancellationToken = default)
+    {
+        //todo implement
+        return Task.CompletedTask;
     }
 }

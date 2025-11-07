@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
@@ -7,13 +8,13 @@ public class FileStorageService : IFileStorageService
 {
     public DataSource SourceType => DataSource.File;
 
-    public Task<string?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public Task<JsonElement?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<JsonElement?>(null);
     }
 
-    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    public Task SetAsync(string id, JsonElement content, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }
