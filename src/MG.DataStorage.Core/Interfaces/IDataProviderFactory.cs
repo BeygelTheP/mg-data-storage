@@ -1,10 +1,8 @@
+using MG.DataStorage.Core.DTOs;
+
 namespace MG.DataStorage.Core.Interfaces;
 
 public interface IDataProviderFactory
 {
-    ICacheService CreateCacheService();
-
-    IFileStorageService CreateFileStorageService();
-
-    IDataRepository CreateDataRepository();
+    IDataService CreateDataSource(DataSource sourceType);    
 }

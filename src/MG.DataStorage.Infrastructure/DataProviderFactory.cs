@@ -1,3 +1,4 @@
+using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 using MG.DataStorage.Infrastructure.Caching;
 using MG.DataStorage.Infrastructure.Configuration;
@@ -13,10 +14,10 @@ public class DataProviderFactory : IDataProviderFactory
         _sp = sp;
     }
 
-    public ICacheService CreateCacheService()
+    private ICacheService CreateCacheService()
     {
         var mode = _config.Strategy.ToLowerInvariant();
-        
+
         return mode switch
         {
             "inmemory" => _sp.GetRequiredService<InMemoryCacheService>(),
@@ -25,6 +26,14 @@ public class DataProviderFactory : IDataProviderFactory
             _ => _sp.GetRequiredService<InMemoryCacheService>()
         };
     }
-    public IFileStorageService CreateFileStorageService() => _sp.GetRequiredService<IFileStorageService>();
-    public IDataRepository CreateDataRepository() => _sp.GetRequiredService<IDataRepository>();
+    public IDataService CreateDataSource(DataSource sourceType)
+    {
+        return sourceType switch
+        {
+            DataSource.Cache => CreateCacheService(),
+            DataSource.File => _sp.GetRequiredService<IFileStorageService>(),
+            DataSource.Database => _sp.GetRequiredService<IDataRepository>(),
+            _ => throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null),
+        };
+    }
 }

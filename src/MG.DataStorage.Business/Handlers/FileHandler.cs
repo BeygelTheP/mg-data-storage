@@ -5,20 +5,22 @@ namespace MG.DataStorage.Business.Handlers;
 
 public sealed class FileHandler : DataHandler
 {
-    private readonly IFileStorageService _fileService;
+    private readonly IDataService _dataService;
 
-    public FileHandler(IFileStorageService fileService)
+    public FileHandler(IDataService dataService)
     {
-        _fileService = fileService;
+        _dataService = dataService;
     }
 
-    public override async Task<DataRetrievalResult?> HandleAsync(string id, CancellationToken cancellationToken = default)
+    protected override DataSource SourceType => DataSource.File;
+
+    protected override async Task<string?> FetchContent(string id, CancellationToken cancellationToken = default)
     {
-        return new DataRetrievalResult
-        {
-            Content = "Mock text",
-            Id = id,
-            RetrievedFrom = DataSource.File,            
-        };
+        return await _dataService.GetByIdAsync(id, cancellationToken);
+    }
+
+    protected override async Task PostFetch(DataRetrievalResult data, CancellationToken cancellationToken = default)
+    {
+        await _dataService.SetAsync(data.Id, data.Payload, cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 using MG.DataStorage.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
@@ -7,10 +8,13 @@ namespace MG.DataStorage.Infrastructure.Caching;
 
 public class InMemoryCacheService : ICacheService
 {
+    
     private readonly ConcurrentDictionary<string, (string data, TimeSpan ttl)> _cache;
     private readonly long _maxSizeBytes;
 
     private long _currentSize;
+
+    public DataSource SourceType => DataSource.Cache;
 
     public InMemoryCacheService(IOptions<CacheSettings> options)
     {
@@ -31,4 +35,9 @@ public class InMemoryCacheService : ICacheService
 
     public Task<bool> IsFullAsync(CancellationToken ct = default)
         => Task.FromResult(_currentSize > _maxSizeBytes);
+
+    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

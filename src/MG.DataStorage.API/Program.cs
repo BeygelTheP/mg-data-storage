@@ -5,6 +5,7 @@ using MG.DataStorage.Infrastructure.Caching;
 using MG.DataStorage.Infrastructure.Configuration;
 using MG.DataStorage.Infrastructure.Repositories;
 using MG.DataStorage.Infrastructure.FileStorage;
+using MG.DataStorage.Core.DTOs;
 
 var configuration = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -41,9 +42,9 @@ builder.Services.AddScoped<IDataRetrievalService>(sp =>
     var factory = sp.GetRequiredService<IDataProviderFactory>();
 
     // Composing the chain
-    var memory = new CacheHandler(factory.CreateCacheService());
-    var file = new FileHandler(factory.CreateFileStorageService());
-    var db = new DatabaseHandler(factory.CreateDataRepository());
+    var memory = new CacheHandler(factory.CreateDataSource(DataSource.Cache));
+    var file = new FileHandler(factory.CreateDataSource(DataSource.File));
+    var db = new DatabaseHandler(factory.CreateDataSource(DataSource.Database));
 
     memory.SetNext(file).SetNext(db);
 

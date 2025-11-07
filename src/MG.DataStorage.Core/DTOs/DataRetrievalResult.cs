@@ -5,7 +5,7 @@ public class DataRetrievalResult
 {
     public required string Id { get; init; }
 
-    public required string Content { get; init; }
+    public required string Payload { get; init; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public required DataSource RetrievedFrom { get; init; }

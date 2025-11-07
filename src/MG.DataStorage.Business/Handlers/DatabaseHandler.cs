@@ -5,20 +5,17 @@ namespace MG.DataStorage.Business.Handlers;
 
 public sealed class DatabaseHandler : DataHandler
 {
-    private IDataRepository repoService;
+    private IDataService _dataService;
 
-    public DatabaseHandler(IDataRepository repoService)
+    public DatabaseHandler(IDataService dataService)
     {
-        this.repoService = repoService;
+        _dataService = dataService;
     }
 
-    public override async Task<DataRetrievalResult?> HandleAsync(string id, CancellationToken cancellationToken = default)
+    protected override DataSource SourceType => DataSource.Database;
+
+    protected override async Task<string?> FetchContent(string id, CancellationToken cancellationToken = default)
     {
-        return new DataRetrievalResult
-        {
-            Content = "Mock text",
-            Id = id,
-            RetrievedFrom = DataSource.Database,
-        };
+        return await _dataService.GetByIdAsync(id, cancellationToken);
     }
 }

@@ -1,9 +1,12 @@
+using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
 namespace MG.DataStorage.Infrastructure.Caching;
 
 public sealed class RedisCacheService : ICacheService
-{    
+{
+    public DataSource SourceType => DataSource.Cache;
+
     public RedisCacheService()
     {
        
@@ -21,4 +24,9 @@ public sealed class RedisCacheService : ICacheService
 
     public Task<bool> IsFullAsync(CancellationToken ct = default)
         => Task.FromResult(false); // Redis usually not limited here
+
+    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

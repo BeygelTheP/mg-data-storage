@@ -5,20 +5,22 @@ namespace MG.DataStorage.Business.Handlers;
 
 public sealed class CacheHandler : DataHandler
 {
-    private readonly ICacheService _cacheService;
+    private readonly IDataService _dataService;
 
-    public CacheHandler(ICacheService cacheService)
+    public CacheHandler(IDataService dataService)
     {
-        _cacheService = cacheService;
+        _dataService = dataService;
     }
 
-    public override async Task<DataRetrievalResult?> HandleAsync(string id, CancellationToken cancellationToken = default)
+    protected override DataSource SourceType => DataSource.Cache;
+
+    protected override async Task<string?> FetchContent(string id, CancellationToken cancellationToken = default)
     {
-        return new DataRetrievalResult
-        {
-            Content = "Mock text",
-            Id = id,
-            RetrievedFrom = DataSource.Cache,            
-        };        
+        return await _dataService.GetByIdAsync(id, cancellationToken);
+    }
+
+    protected override async Task PostFetch(DataRetrievalResult data, CancellationToken cancellationToken = default)
+    {
+        await _dataService.SetAsync(data.Id, data.Payload, cancellationToken);
     }
 }

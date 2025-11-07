@@ -1,3 +1,4 @@
+using MG.DataStorage.Core.DTOs;
 using MG.DataStorage.Core.Interfaces;
 
 namespace MG.DataStorage.Infrastructure.Caching;
@@ -6,6 +7,8 @@ public class HybridCacheService : ICacheService
 {
     private readonly InMemoryCacheService _memory;
     private readonly RedisCacheService _redis;
+
+    public DataSource SourceType => DataSource.Cache;
 
     public HybridCacheService(InMemoryCacheService memory, RedisCacheService redis)
     {
@@ -34,4 +37,9 @@ public class HybridCacheService : ICacheService
 
     public Task<bool> IsFullAsync(CancellationToken ct = default)
         => _memory.IsFullAsync(ct);
+
+    public Task SetAsync(string id, string content, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }
