@@ -1,9 +1,59 @@
+using MG.DataStorage.Business.Handlers;
+using MG.DataStorage.Business.Services;
+using MG.DataStorage.Core.Interfaces;
+using MG.DataStorage.Infrastructure.Caching;
+using MG.DataStorage.Infrastructure.Configuration;
+using MG.DataStorage.Infrastructure.Repositories;
+using MG.DataStorage.Infrastructure.FileStorage;
+
+var configuration = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Config binding
+builder.Services.Configure<CacheSettings>(configuration.GetSection(CacheSettings.CONFIG_NAME));
+builder.Services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.CONFIG_NAME));
+builder.Services.Configure<SecuritySettings>(configuration.GetSection(SecuritySettings.CONFIG_NAME));
+//
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// cache strategy services
+builder.Services.AddSingleton<InMemoryCacheService>();
+builder.Services.AddSingleton<RedisCacheService>();
+builder.Services.AddSingleton<HybridCacheService>();
+
+// File + DB
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IDataRepository, DatabaseRepository>();
+
+// Factory
+builder.Services.AddScoped<IDataProviderFactory, DataProviderFactory>();
+
+// Final service abstraction for controllers
+builder.Services.AddScoped<IDataRetrievalService>(sp =>
+{
+    var factory = sp.GetRequiredService<IDataProviderFactory>();
+
+    // Composing the chain
+    var memory = new CacheHandler(factory.CreateCacheService());
+    var file = new FileHandler(factory.CreateFileStorageService());
+    var db = new DatabaseHandler(factory.CreateDataRepository());
+
+    memory.SetNext(file).SetNext(db);
+
+    // Wrap chain in service abstraction
+    return new DataRetrievalService(memory);
+});
+
+
+
+builder.Services.AddControllers();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -13,29 +63,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
