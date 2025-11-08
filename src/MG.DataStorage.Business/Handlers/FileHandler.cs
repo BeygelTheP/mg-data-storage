@@ -22,6 +22,17 @@ public sealed class FileHandler : DataHandler
 
     protected override async Task PostFetch(DataRetrievalResult data, CancellationToken cancellationToken = default)
     {
-        await _dataService.SetAsync(data.Id, data.Payload, cancellationToken);
+        //fire and forget. we don't really need to wait for saving to any level of cache and return response fsater
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _dataService.SetAsync(data.Id, data.Payload, CancellationToken.None);
+            }
+            catch
+            {
+                // TODO fails need to be registered
+            }
+        }, cancellationToken);
     }
 }

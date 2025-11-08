@@ -1,4 +1,4 @@
-.PHONY: help demo stop test clean db-init db-seed db-reset services
+.PHONY: help demo demo-full stop test clean db-init db-seed db-reset services
 
 # Database connection settings
 DB_HOST=localhost
@@ -41,7 +41,16 @@ db-reset: ## Reset database (drop and recreate)
 
 demo: db-seed ## Start everything (database setup + services + API)
 	@echo "🚀 Starting API..."
-	@cd src/MG.DataStorage.API && dotnet run
+	@docker compose up -d api
+	@echo "✅ Demo ready! API running at http://localhost:5000"
+
+demo-full: ## Start everything from scratch (no .NET required)
+	@echo "🚀 Starting full demo environment..."
+	@docker compose up -d
+	@echo "⏳ Waiting for services to be ready..."
+	@sleep 10
+	@make db-seed
+	@echo "✅ Demo ready! API running at http://localhost:5000"
 
 stop: ## Stop all services
 	@echo "🛑 Stopping services..."

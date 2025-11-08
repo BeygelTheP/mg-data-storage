@@ -28,14 +28,12 @@ public class HybridCacheService : ICacheService
         return payload;
     }
 
-    public Task<bool> IsFullAsync(CancellationToken ct = default)
-        => _memory.IsFullAsync(ct);
+    public bool IsFull() => false; // Hybrid cache can always accept data (memory or Redis)
 
     public async Task SetAsync(string id, JsonElement content, CancellationToken cancellationToken = default)
     {
-        if (await _memory.IsFullAsync(cancellationToken))
-            await _redis.SetAsync(id, content, cancellationToken);
-        else
+        if (!_memory.IsFull())
             await _memory.SetAsync(id, content, cancellationToken);
+        await _redis.SetAsync(id, content, cancellationToken);
     }
 }

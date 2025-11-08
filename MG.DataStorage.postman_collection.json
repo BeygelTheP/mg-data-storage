@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "mg-data-storage-api",
+		"name": "MG Data Storage API",
+		"description": "Collection for testing MG Data Storage API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Data by ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/data/{{data_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"data",
+						"{{data_id}}"
+					]
+				},
+				"description": "Retrieve data by ID from cache, file, or database sources"
+			},
+			"response": [
+				{
+					"name": "Success - Data Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/user-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"user-001"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"user-001\",\n    \"payload\": {\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\",\n        \"age\": 30\n    },\n    \"retrievedFrom\": \"Cache\"\n}"
+				},
+				{
+					"name": "Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/data/nonexistent-id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"data",
+								"nonexistent-id"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:5001",
+			"description": "Base URL for the MG Data Storage API"
+		},
+		{
+			"key": "data_id",
+			"value": "user-001",
+			"description": "Sample data ID for testing"
+		}
+	]
+}

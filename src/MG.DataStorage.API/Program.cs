@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<CacheSettings>(configuration.GetSection(CacheSettings.CONFIG_NAME));
 builder.Services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.CONFIG_NAME));
 builder.Services.Configure<SecuritySettings>(configuration.GetSection(SecuritySettings.CONFIG_NAME));
-builder.Services.Configure<PostgreSqlSettings>(builder.Configuration.GetSection("PostgreSqlSettings"));
+builder.Services.Configure<PostgreSqlSettings>(builder.Configuration.GetSection(PostgreSqlSettings.CONFIG_NAME));
 //
 
 // Add services to the container.
